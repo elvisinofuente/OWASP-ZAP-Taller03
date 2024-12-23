@@ -1,0 +1,55 @@
+plugins {
+    id 'java'
+    id("io.qameta.allure") version "2.12.0"
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21) // Ajusta según tu versión de Java
+    }
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+
+allure {
+    version = '2.29.1'  // o la versión que estés usando
+    autoconfigure = true
+}
+// Crear una configuración resolvible para el agente
+configurations {
+    agent {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    // https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java
+    implementation 'org.seleniumhq.selenium:selenium-java:4.27.0'
+    // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
+    testImplementation 'io.rest-assured:rest-assured:5.5.0'
+    // https://mvnrepository.com/artifact/io.rest-assured/rest-assured-common
+    implementation 'io.rest-assured:rest-assured-common:5.5.0'
+    // https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager
+    implementation 'io.github.bonigarcia:webdrivermanager:5.9.2'
+    testImplementation 'io.qameta.allure:allure-junit5:2.29.1'
+    implementation 'org.aspectj:aspectjrt:1.9.20' // O una versión más reciente
+    testImplementation 'org.aspectj:aspectjweaver:1.9.20'
+    agent 'org.aspectj:aspectjweaver:1.9.20' // Asocia la dependencia a la configuración personalizada
+}
+
+test {
+    useJUnitPlatform()
+    // Configurar el agente AspectJ
+    doFirst {
+        def agentPath = configurations.agent.singleFile.absolutePath
+        jvmArgs += "-javaagent:${agentPath}"
+    }
+}
